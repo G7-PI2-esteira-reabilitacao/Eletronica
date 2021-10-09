@@ -167,7 +167,7 @@ void loop() {
   
   if(timeps == 1000){ //Se passado 1 segundo, realiza calculo de velocidade
     detachInterrupt(S1);
-    vel = (pulsos / 600) * diametro; //Calculo da velocidade em m/s
+    vel = (pulsos / 600) * diametro*3.6; //Calculo da velocidade em km/s
     timeps = 0;
     pulsos = 0;
   }
