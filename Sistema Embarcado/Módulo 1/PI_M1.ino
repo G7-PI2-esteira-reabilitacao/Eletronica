@@ -151,8 +151,8 @@ void setup() {
   pinMode(adc, INPUT);
   // Transformando valores de tensao maxima e minima da bateria 
   //que passa pelo divisor de tensao para o equivalente de um valor retornado pelo ADC
-  battery_max_adc = (VOLTAGE_MAX*R3/(R2+R3)) * ADC_reference/4096;
-  battery_min_adc = (VOLTAGE_MIN*R3/(R2+R3))  * ADC_reference/4096;
+  battery_max_adc = (VOLTAGE_MAX*R3/(R2+R3)) / ADC_reference/4096;
+  battery_min_adc = (VOLTAGE_MIN*R3/(R2+R3)) / ADC_reference/4096;
 
 }
 
