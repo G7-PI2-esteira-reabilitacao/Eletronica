@@ -21,13 +21,20 @@ int8_t validHeartRate;
 
 //-------------------------------------Piezo
 int iPiezo = 0;
+//-------------------------------Monitor de carga
+#define R2 100
+#define R3 10
+#define VOLTAGE_MAX 4200
+#define VOLTAGE_MIN 3300
+#define ADC_reference 1100
+int adc = 18, adc_value;
 
 //-------------------------------------MQTT
 //Um topico para cada variavel a ser enviada
 #define TOPICO_BPM
 #define TOPICO_SPO2
-#deffine TOPICO_Piezo
- 
+#define TOPICO_Piezo
+#define TOPICO_Bateria 
 #define ID_MQTT  "esp32_mqtt"     //id mqtt (para identificação de sessão)
 
 const char* SSID = " "; // Nome da rede para se conectar
@@ -140,6 +147,13 @@ void setup() {
   int adcRange = 4096; //Options: 2048, 4096, 8192, 16384
 
   particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); //Configure sensor with these settings
+  
+  pinMode(adc, INPUT);
+  // Transformando valores de tensao maxima e minima da bateria 
+  //que passa pelo divisor de tensao para o equivalente de um valor retornado pelo ADC
+  battery_max_adc = (VOLTAGE_MAX*R3/(R2+R3)) * ADC_reference/4096;
+  battery_min_adc = (VOLTAGE_MIN*R3/(R2+R3))  * ADC_reference/4096;
+
 }
 
 //--------------------------------LOOP---------------------------------------------------------
@@ -188,7 +202,15 @@ void loop() {
 
   //Realiza leitura analogica do Piezo
   iPiezo = analogRead(39);
+  //Calculo da porcentagem de bateria
+  adc_value = analogRead(adc); //Tensao da bateria
+  int battery_percentage = 100 * (adc - BATTERY_MIN_ADC) / (BATTERY_MAX_ADC - BATTERY_MIN_ADC);
 
+  if (battery_percentage < 0)
+      battery_percentage = 0;
+  if (battery_percentage > 100)
+      battery_percentage = 100;
+ 
   //Publica valores dos sensores para o Broker
   MQTT.publish(TOPICO_BPM, heartRate);
   MQTT.publish(TOPICO_SPO2, spo2);
